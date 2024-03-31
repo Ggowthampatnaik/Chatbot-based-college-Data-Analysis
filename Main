@@ -1,0 +1,52 @@
+import pandas as pd
+from nltk.tokenize import word_tokenize
+from nltk.corpus import stopwords
+from nltk.stem import WordNetLemmatizer
+from collections import Counter
+
+# Load the Excel data
+def load_excel_data(file_path):
+    try:
+        df = pd.read_excel(file_path)
+        return df
+    except Exception as e:
+        print("Error loading Excel data:", str(e))
+        return None
+
+# Preprocess text
+def preprocess_text(text):
+    tokens = word_tokenize(text.lower())  # Tokenize and convert to lowercase
+    stop_words = set(stopwords.words('english'))
+    tokens = [word for word in tokens if word.isalnum() and word not in stop_words]  # Remove stopwords and non-alphanumeric tokens
+    lemmatizer = WordNetLemmatizer()
+    tokens = [lemmatizer.lemmatize(word) for word in tokens]  # Lemmatize words
+    return tokens
+
+# Analyze data based on user query
+def analyze_data(df, query):
+    tokens = preprocess_text(query)
+    if 'pass' in tokens:
+        pass_count = len(df[df['Grade'] == 'Pass'])
+        return f"Total number of students who passed: {pass_count}"
+    elif 'fail' in tokens:
+        fail_count = len(df[df['Grade'] == 'Fail'])
+        return f"Total number of students who failed: {fail_count}"
+    else:
+        return "Sorry, I couldn't understand your query."
+
+# Main function
+def main():
+    file_path = 'student_data.xlsx'  # Path to your Excel file
+    df = load_excel_data(file_path)
+    if df is not None:
+        print("Excel data loaded successfully.")
+        while True:
+            query = input("Ask me a question about student data: ")
+            if query.lower() == 'exit':
+                print("Goodbye!")
+                break
+            response = analyze_data(df, query)
+            print(response)
+
+if __name__ == "__main__":
+    main()
